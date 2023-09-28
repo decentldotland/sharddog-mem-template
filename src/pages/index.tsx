@@ -150,10 +150,11 @@ export default function Home() {
     const Comp = () => (
       <a
         href={`https://arseed.web3infra.dev/${decryptedTX}`}
+        className="underline"
         target="_blank"
         rel="noreferrer noopener"
       >
-        Check your content
+        Arseeding URL
       </a>
     );
     toast.success(<Comp />, { duration: 10000 });
