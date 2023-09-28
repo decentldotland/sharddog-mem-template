@@ -1,0 +1,47 @@
+{
+  "name": "shard-dog-tga-poc",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "net": false,
+    "tls": false
+  },
+  "dependencies": {
+    "@near-wallet-selector/core": "^8.5.3",
+    "@near-wallet-selector/here-wallet": "^8.5.3",
+    "@near-wallet-selector/math-wallet": "^8.5.3",
+    "@near-wallet-selector/meteor-wallet": "^8.5.3",
+    "@near-wallet-selector/modal-ui": "^8.5.3",
+    "@near-wallet-selector/my-near-wallet": "^8.5.3",
+    "@near-wallet-selector/near-wallet": "^8.5.3",
+    "@near-wallet-selector/nearfi": "^8.5.3",
+    "@near-wallet-selector/nightly": "^8.5.3",
+    "@near-wallet-selector/sender": "^8.5.3",
+    "@types/node": "20.5.7",
+    "@types/react": "18.2.21",
+    "@types/react-dom": "18.2.7",
+    "arseeding-js": "^0.0.23",
+    "autoprefixer": "10.4.15",
+    "axios": "^1.5.0",
+    "eth-crypto": "^2.6.0",
+    "moralis": "^2.23.1",
+    "near-api-js": "^2.1.4",
+    "next": "13.4.19",
+    "postcss": "8.4.29",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hot-toast": "^2.4.1",
+    "tailwindcss": "3.3.3",
+    "typescript": "5.2.2",
+    "viem": "^1.12.2"
+  }
+}
