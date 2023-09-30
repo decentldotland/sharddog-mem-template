@@ -3,20 +3,21 @@
 @tailwind utilities;
 @import "../../node_modules/@near-wallet-selector/modal-ui/styles.css";
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+body {
+  color: black;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  body {
+    background-color: black;
+    color: white;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
+.border {
+  @apply border-2 border-black dark:border-white;
+}
+
+.internal-link {
+  @apply hover:underline dark:decoration-white px-4;
 }
