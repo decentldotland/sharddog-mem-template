@@ -1,4 +1,4 @@
-import { MEMState } from "@/types";
+import { MEMState } from "@/types/state";
 
 interface CodePreviewProps {
   isMockup: boolean;
