@@ -6,7 +6,6 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   try {
-    console.log(req.body);
     if (!req.body.message) throw new Error("Add a message to sign!");
     const sig = await createNodeSignature(req.body.message);
     return res.status(200).json(sig);
