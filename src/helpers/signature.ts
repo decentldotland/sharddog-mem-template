@@ -15,7 +15,7 @@ export async function requestAdminSignature(message: string) {
 }
 
 export async function createNodeSignature(message: string) {
-  const pk = ("0x" + process.env.ETH_ADMIN_PK) as `0x${string}`;
+  const pk = ("0x" + process.env.ETH_PK) as `0x${string}`;
   if (!pk) return undefined;
   const account = privateKeyToAccount(pk);
 
