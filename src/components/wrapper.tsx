@@ -1,16 +1,16 @@
 import { setupWalletSelector } from "@near-wallet-selector/core";
 import { setupModal } from "@near-wallet-selector/modal-ui";
-import { setupNearWallet } from "@near-wallet-selector/near-wallet";
+import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
 
-export default async function nearModal() {
+export default async function nearModal(contract_id: string) {
   const selector = await setupWalletSelector({
-    network: "testnet",
-    modules: [setupNearWallet()],
+    network: "mainnet",
+    modules: [setupMyNearWallet()],
   });
 
   const modal = setupModal(selector, {
-    contractId: "test.testnet",
-    theme: "light",
+    contractId: contract_id,
+    theme: "auto",
   });
 
   return { selector, modal };
