@@ -80,6 +80,7 @@ export default function Home() {
         setModal(modal);
         const accounts = (await getAccounts(selector, defaultWallet))[0];
         setNearAccounts(accounts);
+        if (!accounts) return;
         const indexer = await getWalletNFTs(accounts?.accountId, [contract_id]);
         const NFTs = indexer.near.wallet_holdings_by_collection;
         setNFTs(NFTs);
@@ -153,95 +154,3 @@ export default function Home() {
     </>
   );
 }
-
-// async function handleMEM(
-//   newMEMState: MEMState | any,
-//   successMessage: any,
-//   failureMessage: any
-// ) {
-//   if (newMEMState) {
-//     setState(newMEMState);
-//     toast.success(successMessage, ToastOptions);
-//   } else {
-//     toast.error(failureMessage, ToastOptions);
-//   }
-// }
-
-// <div className="flex items-center gap-x-2 ">
-// <input
-//   className="border-black border-2 px-2 py-1"
-//   onChange={(e) => setTextToEncrypt(e.target.value)}
-//   value={textToEncrypt}
-// />
-// <button
-//   className="border-black border-2 px-2 py-1"
-//   onClick={() => encrypt()}
-// >
-//   encrypt text
-// </button>
-// </div>
-// <div className="flex items-center gap-x-2 ">
-// <input
-//   className="border-black border-2 px-2 py-1"
-//   onChange={(e) => setTextToDecrypt(e.target.value)}
-//   value={textToDecrypt}
-// />
-// <button
-//   className="border-black border-2 px-2 py-1"
-//   onClick={() => decrypt()}
-// >
-//   decrypt text
-// </button>
-// </div>
-
-// async function decrypt() {
-//   const decryptedTX = await decryptEVMMessageWeb(textToDecrypt);
-//   const Comp = () => (
-//     <a
-//       href={`https://arseed.web3infra.dev/${decryptedTX}`}
-//       className="underline"
-//       target="_blank"
-//       rel="noreferrer noopener"
-//     >
-//       Arseeding URL
-//     </a>
-//   );
-//   toast.success(<Comp />, { duration: 10000 });
-// }
-
-//   async function handleCreateContainer(config: ContainerConfig) {
-//     setStatusMessage(undefined);
-
-//     let user_signature = "";
-//     let admin_signature = "";
-
-//     // generate user signatures
-//     try {
-//       admin_signature = await requestAdminSignature(
-//         `${adminMessage}${state?.admin_counter || 0}`
-//       );
-//     } catch (e) {
-//       toast.error("Signature generation failed", { duration: 3000 });
-//       return;
-//     }
-
-//     // call the createContainer helper function directly connected to MEM
-//     const newMEMState = await createContainer(
-//       "",
-//       config,
-//       user_signature,
-//       admin_signature
-//     );
-
-//     if (newMEMState) {
-//       setState(newMEMState);
-//       const { containers } = newMEMState;
-//       const lastContainer = containers[containers.length - 1];
-//       toast.success(
-//         `Container ${lastContainer.id.substr(0, 8)}... created successfully!`,
-//         { duration: 3000 }
-//       );
-//     } else {
-//       toast.error("Failed to create container.", { duration: 3000 });
-//     }
-//   }
