@@ -15,7 +15,7 @@ body {
 }
 
 .border {
-  @apply border-2 border-black dark:border-white;
+  @apply border-2 border-black dark:border-white hover:border-gray-500;
 }
 
 .internal-link {
