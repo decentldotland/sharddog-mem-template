@@ -7,7 +7,7 @@ import {
 } from "eth-crypto";
 
 export async function sendAndEncrypt(text: string) {
-  const request = await axios.post("/api/arseed-and-encrypt", { text });
+  const request = await axios.post("/api/upload-and-encrypt", { text });
   return request.data;
 }
 
@@ -22,7 +22,8 @@ export async function encryptEVMMessage(message: string) {
     const encryptedMessageString = cipher.stringify(encryptedMessageObject);
     return encryptedMessageString;
   } catch (error) {
-    return false;
+    console.log(error);
+    return "";
   }
 }
 
