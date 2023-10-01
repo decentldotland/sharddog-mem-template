@@ -23,7 +23,7 @@ export default function Guide() {
       to whitelist the contract. <br /> To start interacting, export the private
       key of the <code className="text-gray-400">admin_address</code> into{" "}
       <code className="text-gray-400">.env.local</code> as{" "}
-      <code className="text-gray-400">ETH_ADMIN_PK</code>.
+      <code className="text-gray-400">ETH_PK</code>.
     </div>
   );
 }

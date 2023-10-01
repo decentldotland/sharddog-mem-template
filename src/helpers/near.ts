@@ -18,3 +18,8 @@ export async function disconnect(selector: any, walletName: string) {
   const wallet = await selector.wallet(walletName);
   await wallet.signOut();
 }
+
+export async function accessWalletAPIs(selector: any, walletName: string) {
+  const wallet = await selector.wallet(walletName);
+  return wallet;
+}

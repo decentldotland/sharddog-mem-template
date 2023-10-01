@@ -10,14 +10,12 @@ import {
 } from "@/constants";
 import { findByNFTId, readMEM } from "@/helpers";
 import { disconnect, getAccounts } from "@/helpers/near";
-import { decryptEVMMessageWeb } from "@/helpers/encryption";
 import { getWalletNFTs } from "@/helpers/indexer";
 import { downloadAndDecrypt } from "@/helpers/arseed";
 
 import { NFT } from "@/types/indexer";
 import { MEMState } from "@/types/state";
 
-import Guide from "@/components/guide";
 import nearModal from "@/components/wrapper";
 import Navbar from "@/components/navbar";
 import FileLinks from "@/components/fileLinks";
@@ -84,6 +82,7 @@ export default function Home() {
         const indexer = await getWalletNFTs(accounts?.accountId, [contract_id]);
         const NFTs = indexer.near.wallet_holdings_by_collection;
         setNFTs(NFTs);
+        // const wallet = await accesso(selector, defaultWallet);
       } catch (e) {
         console.log(e);
       }

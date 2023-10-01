@@ -9,6 +9,7 @@ import { MEMState } from "@/types/state";
 
 import CodePreview from "@/components/codepreview";
 import Navbar from "@/components/navbar";
+import Guide from "@/components/guide";
 
 export default function Home() {
   // Inputs
@@ -88,7 +89,7 @@ export default function Home() {
       <Navbar />
       <main className="flex flex-col items-center justify-center gap-y-6 min-h-screen p-24">
         <h1 className="text-4xl font-semibold text-center">Admin Management</h1>
-        {/* <Guide /> */}
+        <Guide />
         <CodePreview state={state} isMockup={false} />
         <h2 className="text-2xl">Step 1: Add Token Id</h2>
         <div className="flex">
