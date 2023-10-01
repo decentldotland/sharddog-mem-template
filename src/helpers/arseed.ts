@@ -2,6 +2,7 @@ import axios from "axios";
 import { genNodeAPI } from "arseeding-js";
 
 import { EverPayResponse, SendAndPayInterface } from "../types/everpay";
+import { arseedURL } from "@/constants";
 
 export async function uploadFileWeb(
   file: File,
@@ -41,10 +42,20 @@ export async function uploadFileWeb(
 }
 
 export async function uploadAndEncrypt(TXes: string[]) {
-  const request = await axios.post("/api/arseed-and-encrypt", {
+  const request = await axios.post("/api/upload-and-encrypt", {
     TXes,
   });
   return request.data;
+}
+
+export async function downloadAndDecrypt(hash: string) {
+  try {
+    const request = (await axios.post("/api/decrypt-upload", { hash })).data;
+    return request;
+  } catch (e) {
+    console.log(e);
+    return undefined;
+  }
 }
 
 export async function uploadFileToArseedNode(
@@ -62,13 +73,7 @@ export async function uploadFileToArseedNode(
   };
 
   try {
-    const result = await sendAndPay(
-      "https://arseed.web3infra.dev",
-      file,
-      currency,
-      options,
-      false
-    );
+    const result = await sendAndPay(arseedURL, file, currency, options, false);
     if (debug) {
       console.log(result);
     }
