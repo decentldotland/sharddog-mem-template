@@ -12,4 +12,5 @@ export interface NFT {
     media_url: string;
     token_id: string;
   };
+  fileLinks?: string[];
 }
