@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 
 import { ToastOptions, functionId } from "@/constants";
 import { checkUserHoldings } from "./moralis";
-import { MEMState } from "../types/state";
+import { Container, MEMState } from "../types/state";
 
 export async function readMEM() {
   const request = await axios.get("/api/mem/read", {
@@ -48,4 +48,11 @@ export async function createContainer(
   await writeMEM(payload, true);
   const request: MEMState | undefined = await writeMEM(payload);
   return request;
+}
+
+export function findByNFTId(
+  state: MEMState,
+  nftId: string
+): Container | undefined {
+  return state.containers.find((container) => container.nft_id === nftId);
 }
