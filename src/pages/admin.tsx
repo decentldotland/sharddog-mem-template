@@ -7,52 +7,51 @@ import { uploadAndEncrypt, uploadFileWeb } from "@/helpers/arseed";
 import { requestAdminSignature } from "@/helpers/signature";
 import { MEMState } from "@/types/state";
 
-import CodeLinks from "@/components/codelinks";
 import CodePreview from "@/components/codepreview";
-import Guide from "@/components/guide";
-import nearModal from "@/components/wrapper";
-import { decryptEVMMessageWeb } from "@/helpers/encryption";
 import Navbar from "@/components/navbar";
 
 export default function Home() {
   // Inputs
-  const [nftId, setNftId] = useState<string>("");
+  const [tokenId, setTokenId] = useState<string>("");
 
   // state and handlers
   const [state, setState] = useState<MEMState>();
   const [stateInit, setStateInit] = useState<boolean>(true);
   const [files, setFiles] = useState<File[]>([]);
-  // const [lastHash, setLastHash] = useState<string>("");
-  const [statusMessage, setStatusMessage] = useState<string | undefined>();
-
-  async function handleMEM(
-    newMEMState: MEMState | any,
-    successMessage: any,
-    failureMessage: any
-  ) {
-    if (newMEMState) {
-      setState(newMEMState);
-      toast.success(successMessage, ToastOptions);
-    } else {
-      toast.error(failureMessage, ToastOptions);
-    }
-  }
 
   async function startUpload() {
     try {
+      const loading1 = toast.loading("Uploading Files...");
+      // each file gets uploaded to arseed while returning an arweave TX
       const requests = files.map(
         async (file) => (await uploadFileWeb(file)).data
       );
       const TXes = await Promise.all(requests);
+      toast.dismiss(loading1);
+      const loading2 = toast.loading("Saving to MEM...");
+      // upload all TXes as a JSON and hash them
       const hash = await uploadAndEncrypt(TXes);
-      const adminSig = await requestAdminSignature(
+      const adminSignature = await requestAdminSignature(
         adminMessage + state?.admin_counter
       );
-      const newMEMState = createContainer(nftId, hash, adminSig);
-      toast.success("Upload successful!", ToastOptions);
-      //   decrypt(hash);
-    } catch (e) {
+      const newMEMState = await createContainer(
+        tokenId.trim(),
+        hash,
+        adminSignature
+      );
+      console.log(newMEMState);
+      if (newMEMState) {
+        setState(newMEMState);
+        toast.dismiss(loading2);
+        toast.success(`Token #${tokenId} Successfully Created`, ToastOptions);
+        return true;
+      } else {
+        toast.error("", ToastOptions);
+        return false;
+      }
+    } catch (e: any) {
       console.log(e);
+      toast.error(e.message, ToastOptions);
     }
   }
 
@@ -89,32 +88,51 @@ export default function Home() {
       <Navbar />
       <main className="flex flex-col items-center justify-center gap-y-6 min-h-screen p-24">
         <h1 className="text-4xl font-semibold text-center">Admin Management</h1>
-        <Guide />
+        {/* <Guide /> */}
+        <CodePreview state={state} isMockup={false} />
+        <h2 className="text-2xl">Step 1: Add Token Id</h2>
+        <div className="flex">
+          <div className="flex-col">
+            <div className=""></div>
+            <input
+              className="border px-2 py-1 dark:bg-black placeholder:dark:text-gray-700"
+              placeholder="242:15..."
+              onChange={(e) => setTokenId(e.target.value)}
+            />
+          </div>
+        </div>
+        <h3 className="text-2xl">Step 2: Attach Files</h3>
+        {!!files.length && (
+          <>
+            <p className="text-2xl">File List</p>
+            <div className="flex flex-col border-t-2 border-l-2 border-r-2 border-black dark:border-white">
+              {files.map((file) => (
+                <div className="border-b-2 border-black dark:border-white py-1 w-full px-2">
+                  {file.name}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
         <div className="flex items-center gap-x-2">
           <div className="relative inline-block">
             <input
               type="file"
               onChange={handleFileChange}
+              multiple
               className="absolute opacity-0 pointer-events-none"
               id="fileInput"
             />
             <label
               htmlFor="fileInput"
-              className="button px-2 py-1.5 cursor-pointer"
+              className="border px-2 py-1.5 cursor-pointer"
             >
-              Choose a file
+              Choose files
             </label>
           </div>
           <button className="border px-2 py-1" onClick={() => startUpload()}>
-            Upload Files
+            Upload Files To MEM
           </button>
-        </div>
-        <div className="flex flex-col border-t-2 border-l-2 border-r-2 border-black dark:border-white">
-          {files.map((file) => (
-            <div className="border-b-2 border-black dark:border-white py-1 w-full px-2">
-              {file.name}
-            </div>
-          ))}
         </div>
       </main>
     </>
