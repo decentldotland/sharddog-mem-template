@@ -36,7 +36,7 @@ export default async function handler(
       collections,
       user_address,
     };
-    console.log(variables);
+
     const request = await axios.post(url, { query, variables }, { headers });
     const indexerData = request.data as IndexerData;
     return res.status(200).json(indexerData);
