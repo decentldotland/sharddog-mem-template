@@ -48,9 +48,14 @@ export async function uploadAndEncrypt(TXes: string[]) {
   return request.data;
 }
 
-export async function downloadAndDecrypt(hash: string) {
+export async function downloadAndDecrypt(
+  contentHash: string,
+  nearHash: string
+) {
   try {
-    const request = (await axios.post("/api/decrypt-upload", { hash })).data;
+    const request = (
+      await axios.post("/api/decrypt-upload", { contentHash, nearHash })
+    ).data;
     return request;
   } catch (e) {
     console.log(e);
