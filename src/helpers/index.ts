@@ -1,8 +1,7 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-import { ToastOptions, functionId } from "@/constants";
-import { checkUserHoldings } from "./moralis";
+import { headers, ToastOptions, functionId } from "@/constants";
 import { Container, MEMState } from "../types/state";
 
 export async function readMEM() {
@@ -12,13 +11,24 @@ export async function readMEM() {
   return request.data;
 }
 
-export async function writeMEM(input: Record<any, any>, suppressError = false) {
+export async function uploadToMEM(body: any) {
+  const url = "https://api.mem.tech/api/transactions";
+  //! temp fix
+  await axios.post(url, body, headers);
+  const request = (await axios.post(url, body, headers)).data;
+  const state = request?.data?.execution?.state;
+  const errors = request?.data?.execution?.errors;
+  return { state, errors };
+}
+
+export async function handleWriteMEM(
+  input: Record<any, any>,
+  suppressError = false
+) {
   try {
-    const request = await axios.post("/api/mem/write", {
-      functionId,
-      inputs: [{ input }],
-    });
-    const { state, errors } = request.data;
+    const request = await uploadToMEM(input);
+    const { state, errors } = request;
+    console.log(errors);
     const errorCount = Object.keys(errors).length;
     if (!errorCount) return state as MEMState;
     else {
@@ -28,6 +38,7 @@ export async function writeMEM(input: Record<any, any>, suppressError = false) {
     }
   } catch (e: any) {
     if (!suppressError) toast.error(e.message, ToastOptions);
+    console.log(e);
     return undefined;
   }
 }
@@ -45,8 +56,8 @@ export async function createContainer(
   };
 
   // ! This is a temp fix so that the interactions get to MEM
-  await writeMEM(payload, true);
-  const request: MEMState | undefined = await writeMEM(payload);
+  await handleWriteMEM(payload, true);
+  const request: MEMState | undefined = await handleWriteMEM(payload);
   return request;
 }
 
@@ -55,4 +66,27 @@ export function findByNFTId(
   nftId: string
 ): Container | undefined {
   return state.containers.find((container) => container.nft_id === nftId);
+}
+
+export async function requestDecrypt(id: string) {
+  const payload = {
+    function: "requestDecrypt",
+    id,
+  };
+  const request: MEMState | undefined = await handleWriteMEM(payload);
+  return request;
+}
+
+export async function verifyDecrypt(id: string) {
+  try {
+    const payload = {
+      function: "verifyDecrypt",
+      id,
+    };
+    const request: MEMState | undefined = await handleWriteMEM(payload);
+
+    return request;
+  } catch (e) {
+    console.log(e);
+  }
 }
