@@ -1,5 +1,13 @@
 export const contract_id = "mint.sharddog.near";
-export const functionId = "IsQ2GbvmQjdcuMV0XEo2onp-Cld3Yk9uMC8n0HMArs0";
+export const MEM_contract_id = "memtech-oracle-v0-1.near"; // "memtech.near";
+export const functionId = "71N6YXMY8B-Moh2H8-6Hm5Te16GmIk1NZM1Am_vEA_Y";
+///"IsQ2GbvmQjdcuMV0XEo2onp-Cld3Yk9uMC8n0HMArs0";
+
+export const headers = {
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
 
 export const defaultWallet = "my-near-wallet";
 
@@ -11,11 +19,52 @@ export const arseedURL = "https://arseed.web3infra.dev/";
 
 export const MockMEMState = {
   evm_molecule_endpoint: "http://evm.molecule.sh",
+  near_molecule_endpoint: "http://near.molecule.sh",
+  near_oracle_address: "memtech-oracle-v0-1.near",
   admin_address: "0x29942a1ab52ea0A7c2c7C9DFE637710Cb460F61F",
   admin_counter: 0,
   containers: [],
-  signatures: [],
+  decryption_hashes: [],
+  admin_signatures: [],
+  errors: [],
   publicFunctions: {
     createContainer: ["admin_sig", "nft_id", "content"],
+    verifyDecrypt: ["id"],
   },
 };
+
+export const getFunctionCall = (
+  methodName: string,
+  args: any,
+  deposit: string
+) => ({
+  actions: [
+    {
+      type: "FunctionCall",
+      params: {
+        methodName,
+        args,
+        gas: "30000000000000",
+        deposit,
+      },
+    },
+  ],
+});
+
+export const getReadFunction = (
+  methodName: string,
+  args: any,
+  deposit: string
+) => ({
+  actions: [
+    {
+      type: "FunctionCall",
+      params: {
+        methodName,
+        args,
+        gas: "30000000000000",
+        deposit,
+      },
+    },
+  ],
+});
