@@ -1,24 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { v4 as uuidv4 } from "uuid";
 import { WalletSelectorModal } from "@near-wallet-selector/modal-ui";
 
 import {
+  MEM_contract_id,
   MockMEMState,
   ToastOptions,
   contract_id,
   defaultWallet,
+  functionId,
+  getFunctionCall,
 } from "@/constants";
-import { findByNFTId, readMEM } from "@/helpers";
-import { disconnect, getAccounts } from "@/helpers/near";
+import { findByNFTId, readMEM, requestDecrypt, verifyDecrypt } from "@/helpers";
+import {
+  disconnect,
+  getAccounts,
+  sendAndSignTransaction,
+} from "@/helpers/near";
 import { getWalletNFTs } from "@/helpers/indexer";
 import { downloadAndDecrypt } from "@/helpers/arseed";
 
 import { NFT } from "@/types/indexer";
-import { MEMState } from "@/types/state";
+import { MEMState, NEAR_TX } from "@/types/state";
 
 import nearModal from "@/components/wrapper";
 import Navbar from "@/components/navbar";
 import FileLinks from "@/components/fileLinks";
+import { randomUUID } from "crypto";
+import axios from "axios";
 
 export default function Home() {
   // NEAR
@@ -30,6 +40,23 @@ export default function Home() {
   // state and handlers
   const [state, setState] = useState<MEMState>();
   const [stateInit, setStateInit] = useState<boolean>(true);
+
+  async function completeDecrypt(
+    tokenId: string,
+    contentHash: string,
+    nearHash: string
+  ) {
+    const fileLinks = await downloadAndDecrypt(contentHash, nearHash);
+    if (!fileLinks) {
+      toast.error("No goodies for this NFT yet!", ToastOptions);
+      return;
+    }
+    updateNftFileLinks(tokenId, fileLinks.files);
+    toast.success(
+      "Decrypted " + fileLinks.files.length + " files for tokenId " + tokenId,
+      ToastOptions
+    );
+  }
 
   async function reveal(tokenId: string) {
     if (!state) {
@@ -44,16 +71,28 @@ export default function Home() {
       toast.error("No goodies for this NFT yet!", ToastOptions);
       return;
     }
-    const fileLinks = await downloadAndDecrypt(nft.content);
-    if (!fileLinks) {
-      toast.error("No goodies for this NFT yet!", ToastOptions);
-      return;
-    }
-    updateNftFileLinks(tokenId, fileLinks.files);
-    toast.success(
-      "Decrypted " + fileLinks.files.length + " files for tokenId " + tokenId,
-      ToastOptions
-    );
+    const id = uuidv4();
+    // const data = await requestDecrypt(id);
+    // const TX = {
+    //   id,
+    //   from: nearAccounts.accountId,
+    //   functionId,
+    //   inputs: JSON.stringify({ function: "decrypt" }),
+    //   tags: "",
+    // } as NEAR_TX;
+    // const txSizeCost = BigInt(1e19) * BigInt(JSON.stringify(TX).length);
+    // const txData = getFunctionCall("commit", { TX }, txSizeCost.toString());
+    // const transaction = await sendAndSignTransaction(
+    //   selector,
+    //   defaultWallet,
+    //   txData
+    // );
+
+    // if (!transaction?.transaction?.hash) {
+    //   toast.error("Near Transaction didn't go through", ToastOptions);
+    //   return;
+    // }
+    await completeDecrypt(tokenId, nft.content, id);
   }
 
   function updateNftFileLinks(tokenId: string, fileLinks: string[]) {
@@ -73,7 +112,7 @@ export default function Home() {
   useEffect(() => {
     async function initNEAR() {
       try {
-        const { selector, modal } = await nearModal(contract_id);
+        const { selector, modal } = await nearModal(MEM_contract_id);
         setSelector(selector);
         setModal(modal);
         const accounts = (await getAccounts(selector, defaultWallet))[0];
@@ -82,7 +121,6 @@ export default function Home() {
         const indexer = await getWalletNFTs(accounts?.accountId, [contract_id]);
         const NFTs = indexer.near.wallet_holdings_by_collection;
         setNFTs(NFTs);
-        // const wallet = await accesso(selector, defaultWallet);
       } catch (e) {
         console.log(e);
       }
@@ -130,8 +168,11 @@ export default function Home() {
         </div>
         <h2 className="text-2xl font-bold">Shard Dogs</h2>
         <div className="grid grid-cols-3 gap-x-4">
-          {NFTs.map((NFT) => (
-            <div className="flex flex-col gap-y-2 items-center justify-center max-w-[192px] text-center">
+          {NFTs.map((NFT, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col gap-y-2 items-center justify-center max-w-[192px] text-center"
+            >
               <img src={NFT.nft.media_url} className="w-48 h-48" />
               <div className="">
                 {NFT.nft.name} ({NFT.nft.token_id})
