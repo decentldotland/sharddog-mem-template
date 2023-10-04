@@ -6,8 +6,20 @@ export interface Container {
 
 export interface MEMState {
   evm_molecule_endpoint: string;
+  near_molecule_endpoint: string;
+  near_oracle_address: string;
   admin_address: string;
   admin_counter: number;
   containers: Container[];
-  signatures: string[];
+  decryption_hashes: string[];
+  admin_signatures: string[];
+  publicFunctions: Record<string, string[]>;
+}
+
+export interface NEAR_TX {
+  id: string;
+  from: string;
+  functionId: string;
+  inputs: string;
+  tags?: string;
 }
