@@ -107,8 +107,11 @@ export default function Home() {
           <>
             <p className="text-2xl">File List</p>
             <div className="flex flex-col border-t-2 border-l-2 border-r-2 border-black dark:border-white">
-              {files.map((file) => (
-                <div className="border-b-2 border-black dark:border-white py-1 w-full px-2">
+              {files.map((file, key) => (
+                <div
+                  {...{ key }}
+                  className="border-b-2 border-black dark:border-white py-1 w-full px-2"
+                >
                   {file.name}
                 </div>
               ))}
