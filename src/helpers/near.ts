@@ -23,3 +23,12 @@ export async function accessWalletAPIs(selector: any, walletName: string) {
   const wallet = await selector.wallet(walletName);
   return wallet;
 }
+
+export async function sendAndSignTransaction(
+  selector: any,
+  walletName: string,
+  transaction: any
+) {
+  const wallet = await selector.wallet(walletName);
+  return await wallet.signAndSendTransaction(transaction);
+}
