@@ -1,11 +1,13 @@
 export default function CodeLinks() {
+  const gistURL =
+    "https://gist.github.com/maxknivets/827df954a9884ae68f2d0812dfa3da99";
   return (
     <div className="flex gap-x-4">
       <a
         className="underline hover:text-blue-300"
         target="_blank"
         rel="noopener noreferrer"
-        href="https://gist.github.com/maxknivets/e6caa5baa68e5dcab13fa95cd1cff9e9#file-contract-js"
+        href={gistURL + "#file-contract-js"}
       >
         Contract File ↗
       </a>
@@ -13,7 +15,7 @@ export default function CodeLinks() {
         className="underline hover:text-blue-300"
         target="_blank"
         rel="noopener noreferrer"
-        href="https://gist.github.com/maxknivets/e6caa5baa68e5dcab13fa95cd1cff9e9#file-state-json"
+        href={gistURL + "#file-state-json"}
       >
         State File ↗
       </a>
@@ -21,7 +23,7 @@ export default function CodeLinks() {
         className="underline hover:text-blue-300"
         target="_blank"
         rel="noopener noreferrer"
-        href="https://mem.tech/ide?launchExample=e6caa5baa68e5dcab13fa95cd1cff9e9&mainnet=true"
+        href="https://mem.tech/ide?launchExample=827df954a9884ae68f2d0812dfa3da99&mainnet=true"
       >
         Deploy Your Own ↗
       </a>
