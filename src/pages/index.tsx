@@ -29,6 +29,12 @@ import Navbar from "@/components/navbar";
 import FileLinks from "@/components/fileLinks";
 import { randomUUID } from "crypto";
 import axios from "axios";
+import LocalStorageObjectManager from "@/helpers/localstorage";
+
+interface LocalTX {
+  id: string;
+  fileLinks: string[];
+}
 
 export default function Home() {
   // NEAR
@@ -40,6 +46,8 @@ export default function Home() {
   // state and handlers
   const [state, setState] = useState<MEMState>();
   const [stateInit, setStateInit] = useState<boolean>(true);
+
+  let localStorage = new LocalStorageObjectManager("goodies", 1024 * 1024 * 5);
 
   async function completeDecrypt(
     tokenId: string,
@@ -56,6 +64,7 @@ export default function Home() {
       "Decrypted " + fileLinks.files.length + " files for tokenId " + tokenId,
       ToastOptions
     );
+    return fileLinks;
   }
 
   async function reveal(tokenId: string) {
@@ -71,34 +80,39 @@ export default function Home() {
       toast.error("No goodies for this NFT yet!", ToastOptions);
       return;
     }
-    const id = uuidv4();
-    // const data = await requestDecrypt(id);
-    // const TX = {
-    //   id,
-    //   from: nearAccounts.accountId,
-    //   functionId,
-    //   inputs: JSON.stringify({ function: "decrypt" }),
-    //   tags: "",
-    // } as NEAR_TX;
-    // const txSizeCost = BigInt(1e19) * BigInt(JSON.stringify(TX).length);
-    // const txData = getFunctionCall("commit", { TX }, txSizeCost.toString());
-    // const transaction = await sendAndSignTransaction(
-    //   selector,
-    //   defaultWallet,
-    //   txData
-    // );
 
-    // if (!transaction?.transaction?.hash) {
-    //   toast.error("Near Transaction didn't go through", ToastOptions);
-    //   return;
-    // }
+    const goods = localStorage.getValueFromObject(tokenId);
+    if (goods) {
+      updateNftFileLinks(tokenId, goods);
+      return;
+    }
+    let id = window.localStorage.getItem("lastTX");
+    if (!id) {
+      id = uuidv4();
+      window.localStorage.setItem("lastTX", id);
+      const newState = (await axios.post("/api/request-decrypt", { id })).data;
+      if (newState?.decryption_requests?.find((tx: string) => tx === id)) {
+        const TX = {
+          id,
+          from: nearAccounts.accountId,
+          functionId,
+          inputs: JSON.stringify({ function: "decrypt" }),
+          tags: "",
+        } as NEAR_TX;
+        const txSizeCost = BigInt(1e19) * BigInt(JSON.stringify(TX).length);
+        const txData = getFunctionCall("commit", { TX }, txSizeCost.toString());
+        await sendAndSignTransaction(selector, defaultWallet, txData);
+      }
+    }
     await completeDecrypt(tokenId, nft.content, id);
+    window.localStorage.setItem("lastTX", "");
   }
 
   function updateNftFileLinks(tokenId: string, fileLinks: string[]) {
     setNFTs((prevNfts) => {
       return prevNfts.map((nft) => {
         if (nft.nft.token_id === tokenId) {
+          localStorage.setValueOfObject(nft.nft.token_id, fileLinks);
           return {
             ...nft,
             fileLinks,
@@ -168,27 +182,28 @@ export default function Home() {
         </div>
         <h2 className="text-2xl font-bold">Shard Dogs</h2>
         <div className="grid grid-cols-3 gap-x-4">
-          {NFTs.map((NFT, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col gap-y-2 items-center justify-center max-w-[192px] text-center"
-            >
-              <img src={NFT.nft.media_url} className="w-48 h-48" />
-              <div className="">
-                {NFT.nft.name} ({NFT.nft.token_id})
+          {!!NFTs.length &&
+            NFTs.map((NFT, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col gap-y-2 items-center justify-center max-w-[192px] text-center"
+              >
+                <img src={NFT.nft.media_url} className="w-48 h-48" />
+                <div className="">
+                  {NFT.nft.name} ({NFT.nft.token_id})
+                </div>
+                {NFT?.fileLinks?.length ? (
+                  <FileLinks fileLinks={NFT.fileLinks} />
+                ) : (
+                  <button
+                    onClick={() => reveal(NFT.nft.token_id)}
+                    className="border px-2 py-1"
+                  >
+                    Reveal Goodies
+                  </button>
+                )}
               </div>
-              {NFT?.fileLinks?.length ? (
-                <FileLinks fileLinks={NFT.fileLinks} />
-              ) : (
-                <button
-                  onClick={() => reveal(NFT.nft.token_id)}
-                  className="border px-2 py-1"
-                >
-                  Reveal Goodies
-                </button>
-              )}
-            </div>
-          ))}
+            ))}
         </div>
       </main>
     </>
