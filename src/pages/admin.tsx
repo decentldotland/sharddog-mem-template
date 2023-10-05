@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { MockMEMState, ToastOptions, adminMessage } from "@/constants";
-import { createContainer, readMEM } from "@/helpers";
+import { createContainerVercel, readMEM } from "@/helpers";
 import { uploadAndEncrypt, uploadFileWeb } from "@/helpers/arseed";
 import { requestAdminSignature } from "@/helpers/signature";
 import { MEMState } from "@/types/state";
@@ -35,7 +35,7 @@ export default function Home() {
       const adminSignature = await requestAdminSignature(
         adminMessage + state?.admin_counter
       );
-      const newMEMState = await createContainer(
+      const newMEMState = await createContainerVercel(
         tokenId.trim(),
         hash,
         adminSignature
