@@ -12,10 +12,15 @@ export default async function handler(
   try {
     const { contentHash, nearHash } = req.body;
     if (!contentHash || !nearHash) throw new Error("No hash to decrypt!");
-    const state = await verifyDecrypt(nearHash);
-    console.log("state", state);
-    if (!state?.decryption_hashes?.find((nearHash) => nearHash === nearHash))
-      console.log("shit?");
+    const newState = await verifyDecrypt(nearHash);
+    if (
+      newState?.state?.decryption_hashes?.find(
+        (nearHash) => nearHash === nearHash
+      )
+    ) {
+      throw new Error("Hash already decrypted!");
+    }
+
     const decryptedTX = await decryptEVMMessageNode(contentHash);
     const fileHash = (await axios.get(arseedURL + decryptedTX)).data;
     const decryptedJson = JSON.parse(
