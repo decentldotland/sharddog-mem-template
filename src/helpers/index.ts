@@ -16,7 +16,7 @@ export async function uploadToMEM(body: any) {
   //! temp fix
   await axios.post(url, body, headers);
   const request = (await axios.post(url, body, headers)).data;
-  const state = request?.data?.execution?.state;
+  const state = request?.data?.execution?.state as MEMState;
   const errors = request?.data?.execution?.errors;
   return { state, errors };
 }
@@ -26,11 +26,13 @@ export async function handleWriteMEM(
   suppressError = false
 ) {
   try {
-    const request = await uploadToMEM(input);
-    const { state, errors } = request;
-    console.log(errors);
+    const payload = {
+      functionId,
+      inputs: [{ input: input }],
+    };
+    const { state, errors } = await uploadToMEM(payload);
     const errorCount = Object.keys(errors).length;
-    if (!errorCount) return state as MEMState;
+    if (!errorCount) return { state, errors };
     else {
       let textErrors = "";
       Object.values(errors).map((error) => (textErrors += error + "\n"));
@@ -57,8 +59,24 @@ export async function createContainer(
 
   // ! This is a temp fix so that the interactions get to MEM
   await handleWriteMEM(payload, true);
-  const request: MEMState | undefined = await handleWriteMEM(payload);
-  return request;
+  const request = await handleWriteMEM(payload);
+  return request?.state;
+}
+
+export async function createContainerVercel(
+  nft_id: string,
+  content: string,
+  admin_sig: string
+) {
+  const payload = {
+    function: "createContainer",
+    nft_id,
+    content,
+    admin_sig,
+  };
+
+  const response = (await axios.post("/api/create-container", payload)).data;
+  return response;
 }
 
 export function findByNFTId(
@@ -73,8 +91,8 @@ export async function requestDecrypt(id: string) {
     function: "requestDecrypt",
     id,
   };
-  const request: MEMState | undefined = await handleWriteMEM(payload);
-  return request;
+  const request = await handleWriteMEM(payload);
+  return request?.state;
 }
 
 export async function verifyDecrypt(id: string) {
@@ -83,8 +101,7 @@ export async function verifyDecrypt(id: string) {
       function: "verifyDecrypt",
       id,
     };
-    const request: MEMState | undefined = await handleWriteMEM(payload);
-
+    const request = await handleWriteMEM(payload);
     return request;
   } catch (e) {
     console.log(e);
