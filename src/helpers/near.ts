@@ -1,34 +1,23 @@
-export async function getAccounts(selector: any, walletName: string) {
-  const wallet = await selector.wallet(walletName);
-  const accounts = await wallet.getAccounts();
-  return accounts;
-}
+export const fetchWallet = async (selector: any, walletName: string) =>
+  selector.wallet(walletName);
 
-export async function connect(
+export const getAccounts = async (selector: any, walletName: string) =>
+  (await fetchWallet(selector, walletName)).getAccounts();
+
+export const connect = async (
   selector: any,
   walletName: string,
   contractId: string
-) {
-  const wallet = await selector.wallet(walletName);
-  const accounts = await wallet.signIn({ contractId });
-  return accounts;
-}
+) => (await fetchWallet(selector, walletName)).signIn({ contractId });
 
-export async function disconnect(selector: any, walletName: string) {
-  const wallet = await selector.wallet(walletName);
-  await wallet.signOut();
-}
+export const disconnect = async (selector: any, walletName: string) =>
+  (await fetchWallet(selector, walletName)).signOut();
 
-export async function accessWalletAPIs(selector: any, walletName: string) {
-  const wallet = await selector.wallet(walletName);
-  return wallet;
-}
+export const accessWalletAPIs = fetchWallet;
 
-export async function sendAndSignTransaction(
+export const sendAndSignTransaction = async (
   selector: any,
   walletName: string,
   transaction: any
-) {
-  const wallet = await selector.wallet(walletName);
-  return await wallet.signAndSendTransaction(transaction);
-}
+) =>
+  (await fetchWallet(selector, walletName)).signAndSendTransaction(transaction);
