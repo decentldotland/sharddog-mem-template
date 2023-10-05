@@ -1,8 +1,7 @@
 export const contract_id = "mint.sharddog.near";
 export const MEM_contract_id = "memtech-oracle-v0-1.near"; // "memtech.near";
-export const functionId = "71N6YXMY8B-Moh2H8-6Hm5Te16GmIk1NZM1Am_vEA_Y";
-///"IsQ2GbvmQjdcuMV0XEo2onp-Cld3Yk9uMC8n0HMArs0";
-
+export const functionId = "u-SCIA8l7ZKFiV-x9LFOvu9ZZXHoMyTI_xsGDQ47Jsc";
+//"BQxGlCuCLNNPHPZ7HCpZqFHXktanq9kcN__5Nc8V_7s";
 export const headers = {
   headers: {
     "Content-Type": "application/json",
@@ -24,6 +23,7 @@ export const MockMEMState = {
   admin_address: "0x29942a1ab52ea0A7c2c7C9DFE637710Cb460F61F",
   admin_counter: 0,
   containers: [],
+  decryption_requests: [],
   decryption_hashes: [],
   admin_signatures: [],
   errors: [],
