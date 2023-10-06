@@ -86,15 +86,6 @@ export function findByNFTId(
   return state.containers.find((container) => container.nft_id === nftId);
 }
 
-export async function requestDecrypt(id: string) {
-  const payload = {
-    function: "requestDecrypt",
-    id,
-  };
-  const request = await handleWriteMEM(payload);
-  return request?.state;
-}
-
 export async function verifyDecrypt(id: string) {
   try {
     const payload = {

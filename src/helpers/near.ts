@@ -1,3 +1,6 @@
+import { defaultWallet, functionId, getFunctionCall } from "@/constants";
+import { NEAR_TX } from "@/types/state";
+
 export const fetchWallet = async (selector: any, walletName: string) =>
   selector.wallet(walletName);
 
@@ -21,3 +24,16 @@ export const sendAndSignTransaction = async (
   transaction: any
 ) =>
   (await fetchWallet(selector, walletName)).signAndSendTransaction(transaction);
+
+export async function payAndSubmitTX(id: string, from: string, selector: any) {
+  const TX = {
+    id,
+    from,
+    functionId,
+    inputs: JSON.stringify({ function: "decrypt" }),
+    tags: "",
+  } as NEAR_TX;
+  const txSizeCost = BigInt(1e19) * BigInt(JSON.stringify(TX).length);
+  const txData = getFunctionCall("commit", { TX }, txSizeCost.toString());
+  await sendAndSignTransaction(selector, defaultWallet, txData);
+}

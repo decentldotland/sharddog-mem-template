@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
@@ -9,32 +10,20 @@ import {
   ToastOptions,
   contract_id,
   defaultWallet,
-  functionId,
-  getFunctionCall,
 } from "@/constants";
-import { findByNFTId, readMEM, requestDecrypt, verifyDecrypt } from "@/helpers";
-import {
-  disconnect,
-  getAccounts,
-  sendAndSignTransaction,
-} from "@/helpers/near";
-import { getWalletNFTs } from "@/helpers/indexer";
+
+import { findByNFTId, readMEM } from "@/helpers";
 import { downloadAndDecrypt } from "@/helpers/arseed";
+import { disconnect, getAccounts, payAndSubmitTX } from "@/helpers/near";
+import LocalStorageObjectManager from "@/helpers/localstorage";
+import { getWalletNFTs } from "@/helpers/indexer";
 
 import { NFT } from "@/types/indexer";
-import { MEMState, NEAR_TX } from "@/types/state";
+import { MEMState } from "@/types/state";
 
 import nearModal from "@/components/wrapper";
 import Navbar from "@/components/navbar";
 import FileLinks from "@/components/fileLinks";
-import { randomUUID } from "crypto";
-import axios from "axios";
-import LocalStorageObjectManager from "@/helpers/localstorage";
-
-interface LocalTX {
-  id: string;
-  fileLinks: string[];
-}
 
 export default function Home() {
   // NEAR
@@ -49,63 +38,39 @@ export default function Home() {
 
   let localStorage = new LocalStorageObjectManager("goodies", 1024 * 1024 * 5);
 
-  async function completeDecrypt(
-    tokenId: string,
-    contentHash: string,
-    nearHash: string
-  ) {
-    const fileLinks = await downloadAndDecrypt(contentHash, nearHash);
-    if (!fileLinks) {
-      toast.error("No goodies for this NFT yet!", ToastOptions);
-      return;
+  async function reveal(tokenId: string) {
+    if (!state) {
+      return toast.error(
+        "Weird. How did this happen? Where is the contract state?",
+        ToastOptions
+      );
     }
+
+    const nft = findByNFTId(state, tokenId);
+    if (!nft) return toast.error("No goodies for this NFT yet!", ToastOptions);
+
+    const goods = localStorage.getValueFromObject(tokenId);
+    if (goods) return updateNftFileLinks(tokenId, goods);
+    let id = window.localStorage.getItem("lastTX");
+
+    if (!id) {
+      id = uuidv4();
+      window.localStorage.setItem("lastTX", id);
+      await payAndSubmitTX(id, nearAccounts.accountId, selector);
+    }
+
+    const fileLinks = await downloadAndDecrypt(nft.content, id);
+    window.localStorage.setItem("lastTX", "");
+
+    if (!fileLinks)
+      return toast.error("No goodies for this NFT yet!", ToastOptions);
     updateNftFileLinks(tokenId, fileLinks.files);
     toast.success(
       "Decrypted " + fileLinks.files.length + " files for tokenId " + tokenId,
       ToastOptions
     );
+
     return fileLinks;
-  }
-
-  async function reveal(tokenId: string) {
-    if (!state) {
-      toast.error(
-        "Weird. How did this happen? Where is the contract state?",
-        ToastOptions
-      );
-      return;
-    }
-    const nft = findByNFTId(state, tokenId);
-    if (!nft) {
-      toast.error("No goodies for this NFT yet!", ToastOptions);
-      return;
-    }
-
-    const goods = localStorage.getValueFromObject(tokenId);
-    if (goods) {
-      updateNftFileLinks(tokenId, goods);
-      return;
-    }
-    let id = window.localStorage.getItem("lastTX");
-    if (!id) {
-      id = uuidv4();
-      window.localStorage.setItem("lastTX", id);
-      const newState = (await axios.post("/api/request-decrypt", { id })).data;
-      if (newState?.decryption_requests?.find((tx: string) => tx === id)) {
-        const TX = {
-          id,
-          from: nearAccounts.accountId,
-          functionId,
-          inputs: JSON.stringify({ function: "decrypt" }),
-          tags: "",
-        } as NEAR_TX;
-        const txSizeCost = BigInt(1e19) * BigInt(JSON.stringify(TX).length);
-        const txData = getFunctionCall("commit", { TX }, txSizeCost.toString());
-        await sendAndSignTransaction(selector, defaultWallet, txData);
-      }
-    }
-    await completeDecrypt(tokenId, nft.content, id);
-    window.localStorage.setItem("lastTX", "");
   }
 
   function updateNftFileLinks(tokenId: string, fileLinks: string[]) {
